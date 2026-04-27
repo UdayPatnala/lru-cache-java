@@ -1,14 +1,20 @@
-# LRU Cache (Java)
+# LRU Cache (Java, No Maven)
 
 An O(1) Least Recently Used cache implementation using:
 
 - HashMap for key lookup
 - Doubly linked list for usage ordering
 
+## Run
+
+```powershell
+.\run.ps1
+```
+
 ## Run Tests
 
-```bash
-mvn test
+```powershell
+.\run.ps1 -Test
 ```
 
 ## Concepts
