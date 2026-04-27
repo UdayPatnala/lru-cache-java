@@ -3,6 +3,12 @@ package com.roadmap.lru;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * An O(1) Least Recently Used cache backed by a HashMap and a doubly linked list.
+ * <p>
+ * The HashMap provides constant-time key lookup while the doubly linked list
+ * maintains access order so the least recently used entry can be evicted in O(1).
+ */
 public class LRUCache {
     private final int capacity;
     private final Map<Integer, Node> map;
@@ -21,6 +27,12 @@ public class LRUCache {
         }
     }
 
+    /**
+     * Creates a new LRU cache with the given capacity.
+     *
+     * @param capacity maximum number of entries; must be positive
+     * @throws IllegalArgumentException if capacity is not positive
+     */
     public LRUCache(int capacity) {
         if (capacity <= 0) {
             throw new IllegalArgumentException("Capacity must be positive");
@@ -34,6 +46,10 @@ public class LRUCache {
         tail.prev = head;
     }
 
+    /**
+     * Returns the value for the given key, or -1 if absent.
+     * Accessing a key promotes it to most-recently-used.
+     */
     public int get(int key) {
         Node node = map.get(key);
         if (node == null) {
@@ -43,6 +59,10 @@ public class LRUCache {
         return node.value;
     }
 
+    /**
+     * Inserts or updates a key-value pair.
+     * If the cache is at capacity, the least recently used entry is evicted.
+     */
     public void put(int key, int value) {
         Node existing = map.get(key);
         if (existing != null) {
@@ -61,6 +81,21 @@ public class LRUCache {
         Node created = new Node(key, value);
         addToFront(created);
         map.put(key, created);
+    }
+
+    /** Returns the number of entries currently in the cache. */
+    public int size() {
+        return map.size();
+    }
+
+    /** Returns true if the cache contains no entries. */
+    public boolean isEmpty() {
+        return map.isEmpty();
+    }
+
+    /** Returns the maximum capacity of this cache. */
+    public int getCapacity() {
+        return capacity;
     }
 
     private void moveToFront(Node node) {

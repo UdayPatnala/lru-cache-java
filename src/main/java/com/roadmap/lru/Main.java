@@ -13,5 +13,6 @@ public class Main {
 
         System.out.println("get(2) = " + cache.get(2));
         System.out.println("get(3) = " + cache.get(3));
+        System.out.println("Cache size: " + cache.size());
     }
 }
