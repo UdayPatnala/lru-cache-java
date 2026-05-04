@@ -2,17 +2,20 @@ package com.roadmap.lru;
 
 public class Main {
     public static void main(String[] args) {
-        LRUCache cache = new LRUCache(2);
+        System.out.println("--- Generic LRU Cache Demo ---");
+        // Using String keys and Integer values, wrapped in a thread-safe decorator
+        Cache<String, Integer> cache = new ThreadSafeCache<>(new LRUCache<>(2));
 
-        cache.put(1, 10);
-        cache.put(2, 20);
+        cache.put("One", 10);
+        cache.put("Two", 20);
 
-        System.out.println("get(1) = " + cache.get(1));
+        System.out.println("get('One') = " + cache.get("One"));
 
-        cache.put(3, 30);
+        // 'One' is most recently used. Inserting 'Three' evicts 'Two'
+        cache.put("Three", 30);
 
-        System.out.println("get(2) = " + cache.get(2));
-        System.out.println("get(3) = " + cache.get(3));
-        System.out.println("Cache size: " + cache.size());
+        System.out.println("get('Two') = " + cache.get("Two"));   // Should be null (evicted)
+        System.out.println("get('Three') = " + cache.get("Three")); // Should be 30
+        System.out.println("Cache size: " + cache.size());          // Should be 2
     }
 }

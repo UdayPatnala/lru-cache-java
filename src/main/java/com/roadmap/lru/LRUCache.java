@@ -8,20 +8,23 @@ import java.util.Map;
  * <p>
  * The HashMap provides constant-time key lookup while the doubly linked list
  * maintains access order so the least recently used entry can be evicted in O(1).
+ *
+ * @param <K> the type of keys maintained by this cache
+ * @param <V> the type of mapped values
  */
-public class LRUCache {
+public class LRUCache<K, V> implements Cache<K, V> {
     private final int capacity;
-    private final Map<Integer, Node> map;
-    private final Node head;
-    private final Node tail;
+    private final Map<K, Node<K, V>> map;
+    private final Node<K, V> head;
+    private final Node<K, V> tail;
 
-    private static class Node {
-        int key;
-        int value;
-        Node prev;
-        Node next;
+    private static class Node<K, V> {
+        K key;
+        V value;
+        Node<K, V> prev;
+        Node<K, V> next;
 
-        Node(int key, int value) {
+        Node(K key, V value) {
             this.key = key;
             this.value = value;
         }
@@ -40,20 +43,22 @@ public class LRUCache {
         this.capacity = capacity;
         this.map = new HashMap<>();
 
-        head = new Node(-1, -1);
-        tail = new Node(-1, -1);
+        // Using null keys/values for dummy sentinel nodes
+        head = new Node<>(null, null);
+        tail = new Node<>(null, null);
         head.next = tail;
         tail.prev = head;
     }
 
     /**
-     * Returns the value for the given key, or -1 if absent.
+     * Returns the value for the given key, or null if absent.
      * Accessing a key promotes it to most-recently-used.
      */
-    public int get(int key) {
-        Node node = map.get(key);
+    @Override
+    public V get(K key) {
+        Node<K, V> node = map.get(key);
         if (node == null) {
-            return -1;
+            return null;
         }
         moveToFront(node);
         return node.value;
@@ -63,8 +68,13 @@ public class LRUCache {
      * Inserts or updates a key-value pair.
      * If the cache is at capacity, the least recently used entry is evicted.
      */
-    public void put(int key, int value) {
-        Node existing = map.get(key);
+    @Override
+    public void put(K key, V value) {
+        if (key == null) {
+            throw new IllegalArgumentException("Null keys are not supported");
+        }
+        
+        Node<K, V> existing = map.get(key);
         if (existing != null) {
             existing.value = value;
             moveToFront(existing);
@@ -72,54 +82,57 @@ public class LRUCache {
         }
 
         if (map.size() == capacity) {
-            Node lru = removeLast();
-            if (lru != null) {
+            Node<K, V> lru = removeLast();
+            if (lru != null && lru.key != null) {
                 map.remove(lru.key);
             }
         }
 
-        Node created = new Node(key, value);
+        Node<K, V> created = new Node<>(key, value);
         addToFront(created);
         map.put(key, created);
     }
 
     /** Returns the number of entries currently in the cache. */
+    @Override
     public int size() {
         return map.size();
     }
 
     /** Returns true if the cache contains no entries. */
+    @Override
     public boolean isEmpty() {
         return map.isEmpty();
     }
 
     /** Returns the maximum capacity of this cache. */
+    @Override
     public int getCapacity() {
         return capacity;
     }
 
-    private void moveToFront(Node node) {
+    private void moveToFront(Node<K, V> node) {
         removeNode(node);
         addToFront(node);
     }
 
-    private void addToFront(Node node) {
+    private void addToFront(Node<K, V> node) {
         node.next = head.next;
         node.prev = head;
         head.next.prev = node;
         head.next = node;
     }
 
-    private void removeNode(Node node) {
+    private void removeNode(Node<K, V> node) {
         node.prev.next = node.next;
         node.next.prev = node.prev;
     }
 
-    private Node removeLast() {
+    private Node<K, V> removeLast() {
         if (tail.prev == head) {
             return null;
         }
-        Node node = tail.prev;
+        Node<K, V> node = tail.prev;
         removeNode(node);
         return node;
     }
